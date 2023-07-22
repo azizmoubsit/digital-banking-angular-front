@@ -5,12 +5,13 @@ import {
   HttpEvent,
   HttpInterceptor,
 } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, catchError, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
+import { Router } from '@angular/router';
 
 @Injectable()
 export class HttpPrivateInterceptor implements HttpInterceptor {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   intercept(
     request: HttpRequest<unknown>,
@@ -23,7 +24,15 @@ export class HttpPrivateInterceptor implements HttpInterceptor {
           `Bearer ${this.authService.accessToken}`
         ),
       });
-      return next.handle(newRequest);
+      return next.handle(newRequest).pipe(
+        catchError((error) => {
+          if (error.status === 401) this.authService.logout();
+          if (error.status === 403)
+            this.router.navigateByUrl('/admin/not-authorized');
+
+          throw new Error(error.message);
+        })
+      );
     }
     return next.handle(request);
   }

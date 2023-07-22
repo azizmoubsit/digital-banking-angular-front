@@ -44,6 +44,7 @@ export class AuthService {
     this.roles = [];
     this.username = '';
     this.accessToken = '';
+    window.localStorage.removeItem('accessToken');
     this.router.navigateByUrl('/login');
   }
 
@@ -51,7 +52,6 @@ export class AuthService {
     const accessToken = window.localStorage.getItem('accessToken');
     if (accessToken) {
       this.loadProfile({ accessToken });
-      this.router.navigateByUrl('/admin/accounts');
     }
   }
 }
