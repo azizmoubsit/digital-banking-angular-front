@@ -35,6 +35,7 @@ export class AuthService {
     this.username = jwtDecoded.sub;
     this.roles = jwtDecoded.scope;
     this.isAdmin = this.roles.includes('ADMIN');
+    window.localStorage.setItem('accessToken', this.accessToken);
   }
 
   logout() {
@@ -44,5 +45,13 @@ export class AuthService {
     this.username = '';
     this.accessToken = '';
     this.router.navigateByUrl('/login');
+  }
+
+  loadJwtFromLocalStorage() {
+    const accessToken = window.localStorage.getItem('accessToken');
+    if (accessToken) {
+      this.loadProfile({ accessToken });
+      this.router.navigateByUrl('/admin/accounts');
+    }
   }
 }
